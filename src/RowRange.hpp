@@ -22,11 +22,18 @@ class RowRangeConstIterator : public std::iterator<std::forward_iterator_tag, T>
             CV_DbgAssert(position >= 0 && position <= data.rows + 1);
         }
         
+        // Dereference
         const cv::Mat_<T>& operator*() const
         {
             return row;
         }
         
+        const cv::Mat_<T>* operator->() const
+        {
+            return &row;
+        }
+        
+        // Logical comparison
         bool operator==(const RowRangeConstIterator& that) const
         {
             return this->position == that.position;
@@ -56,6 +63,22 @@ class RowRangeConstIterator : public std::iterator<std::forward_iterator_tag, T>
         {
             return !(*this < that);
         }
+        
+        // Increment
+        RowRangeConstIterator& operator++()
+        {
+            ++position;
+            return *this;
+        }
+        
+        RowRangeConstIterator operator++(int) const
+        {
+            RowRangeConstIterator tmp(*this);
+            ++(*this);
+            return tmp;
+        }
+        
+        
 
     protected:
         const cv::Mat_<T>& data;
