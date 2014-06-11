@@ -82,7 +82,7 @@ class RowRangeConstIterator : public std::iterator<std::forward_iterator_tag, T>
         
         
 
-    private:
+    protected:
         cv::Mat_<T> data;
         mutable cv::Mat_<T> row;
         int position;
@@ -93,36 +93,23 @@ class RowRangeIterator : public RowRangeConstIterator<T>
 {
 public:
     RowRangeIterator()
-    : data()
-    , row()
-    , position()
+    : RowRangeConstIterator<T>()
     {}
     
     RowRangeIterator(const cv::Mat_<T>& m, int index)
-    : data(m)
-    , position(index)
-    {
-        CV_DbgAssert(position >= 0 && position <= data.rows + 1);
-        if (index != data.rows + 1) {
-            row = m.row(index);
-        }
-    }
+    : RowRangeConstIterator<T>(m, index)
+    {}
 
     // Dereference
     cv::Mat_<T>& operator*() const
     {
-        return row;
+        return RowRangeConstIterator<T>::row;
     }
 
     cv::Mat_<T>* operator->() const
     {
-        return &row;
+        return &RowRangeConstIterator<T>::row;
     }
-    
-private:
-    cv::Mat_<T> data;
-    mutable cv::Mat_<T> row;
-    int position;
 };
 
 template <typename T>
