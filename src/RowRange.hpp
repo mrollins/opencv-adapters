@@ -4,6 +4,9 @@
 #include <iterator>
 #include <opencv2/core/core.hpp>
 
+namespace cv
+{
+
 template <typename T>
 class RowRangeConstIterator : public std::iterator<std::forward_iterator_tag, T>
     {
@@ -16,22 +19,22 @@ class RowRangeConstIterator : public std::iterator<std::forward_iterator_tag, T>
 
         RowRangeConstIterator(const cv::Mat_<T>& m, int index)
         : data(m)
+        , row()
         , position(index)
         {
-            CV_DbgAssert(position >= 0 && position <= data.rows + 1);
-            if (index != data.rows + 1) {
-                row = m.row(index);
-            }
+            CV_DbgAssert(position >= 0 && position <= data.rows);
         }
         
         // Dereference
         const cv::Mat_<T>& operator*() const
         {
+            setRow();
             return row;
         }
         
         const cv::Mat_<T>* operator->() const
         {
+            setRow();
             return &row;
         }
         
@@ -69,7 +72,7 @@ class RowRangeConstIterator : public std::iterator<std::forward_iterator_tag, T>
         // Increment
         RowRangeConstIterator& operator++()
         {
-            ++position;
+            ++position;            
             return *this;
         }
         
@@ -79,10 +82,13 @@ class RowRangeConstIterator : public std::iterator<std::forward_iterator_tag, T>
             ++(*this);
             return tmp;
         }
-        
-        
 
     protected:
+        void setRow() const
+        {
+            row = data.row(position);
+        }
+        
         cv::Mat_<T> data;
         mutable cv::Mat_<T> row;
         int position;
@@ -103,12 +109,14 @@ public:
     // Dereference
     cv::Mat_<T>& operator*() const
     {
-        return RowRangeConstIterator<T>::row;
+        this->setRow();
+        return this->row;
     }
 
     cv::Mat_<T>* operator->() const
     {
-        return &RowRangeConstIterator<T>::row;
+        this->setRow();
+        return &this->row;
     }
 };
 
@@ -118,8 +126,6 @@ class RowRange
 public:
     typedef RowRangeConstIterator<T> const_iterator;
     typedef RowRangeIterator<T> iterator;
-    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-    typedef std::reverse_iterator<iterator> reverse_iterator;
     
     RowRange(cv::Mat m)
     : data(m)
@@ -142,12 +148,12 @@ public:
     
     const_iterator end() const
     {
-        return const_iterator(data, data.rows + 1);
+        return const_iterator(data, data.rows);
     }
     
     iterator end()
     {
-        return iterator(data, data.rows + 1);
+        return iterator(data, data.rows);
     }
     
     const_iterator cbegin() const
@@ -169,6 +175,8 @@ RowRange<T> make_RowRange(cv::Mat_<T> m)
 {
     return RowRange<T>(m);
 }
+
+} // namespace cv
 
 #endif	/* CV_ADAPTERS_ROWRANGE_HPP */
 
