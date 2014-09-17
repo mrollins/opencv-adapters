@@ -39,35 +39,10 @@ class RowRangeConstIterator : public std::iterator<std::forward_iterator_tag, T>
         }
         
         // Logical comparison
-        bool operator==(const RowRangeConstIterator& that) const
-        {
-            return this->position == that.position;
-        }
-
-        bool operator!=(const RowRangeConstIterator& that) const
-        {
-            return !(*this == that);
-        }
-        
-        bool operator<(const RowRangeConstIterator& that) const
-        {
-            return this->position < that.position;
-        }
-        
-        bool operator>(const RowRangeConstIterator& that) const
-        {
-            return this->position > that.position;
-        }
-        
-        bool operator<=(const RowRangeConstIterator& that) const
-        {
-            return !(*this > that);
-        }
-        
-        bool operator>=(const RowRangeConstIterator& that) const
-        {
-            return !(*this < that);
-        }
+        template <typename U>
+        friend bool operator==(const RowRangeConstIterator<U>&, const RowRangeConstIterator<U>&);
+        template <typename U>
+        friend bool operator<(const RowRangeConstIterator<U>&, const RowRangeConstIterator<U>&);
         
         // Increment
         RowRangeConstIterator& operator++()
@@ -94,6 +69,42 @@ class RowRangeConstIterator : public std::iterator<std::forward_iterator_tag, T>
         int position;
     };
     
+template <typename T>
+bool operator==(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return left.position == right.position;
+}
+
+template <typename T>
+bool operator!=(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return !(left == right);
+}
+
+template <typename T>
+bool operator<(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return left.position < right.position;
+}
+
+template <typename T>
+bool operator<=(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return (left < right) || (left == right);
+}
+
+template <typename T>
+bool operator>=(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return !(left < right);
+}
+
+template <typename T>
+bool operator>(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return !(left <= right);
+}
+
 template <typename T>
 class RowRangeIterator : public RowRangeConstIterator<T>
 {
