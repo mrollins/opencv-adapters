@@ -17,7 +17,7 @@ public:
     , position()
     {}
 
-    RowRangeConstIterator(const cv::Mat_<T>& m, int index)
+    RowRangeConstIterator(const cv::Mat_<T>& m, const int index)
     : data(m)
     , row()
     , position(index)
@@ -51,7 +51,7 @@ public:
         return *this;
     }
 
-    RowRangeConstIterator operator++(int) const
+    RowRangeConstIterator operator++(int)
     {
         RowRangeConstIterator tmp(*this);
         ++(*this);
@@ -113,7 +113,7 @@ public:
     : RowRangeConstIterator<T>()
     {}
     
-    RowRangeIterator(const cv::Mat_<T>& m, int index)
+    RowRangeIterator(const cv::Mat_<T>& m, const int index)
     : RowRangeConstIterator<T>(m, index)
     {}
 
@@ -166,7 +166,7 @@ public:
     {
         return iterator(data, data.rows);
     }
-    
+        
     const_iterator cbegin() const
     {
         return begin();
