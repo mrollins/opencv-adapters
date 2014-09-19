@@ -9,91 +9,102 @@ namespace cv
 
 template <typename T>
 class RowRangeConstIterator : public std::iterator<std::forward_iterator_tag, T>
+{
+public:
+    RowRangeConstIterator()
+    : data()
+    , row()
+    , position()
+    {}
+
+    RowRangeConstIterator(const cv::Mat_<T>& m, const int index)
+    : data(m)
+    , row()
+    , position(index)
     {
-    public:
-        RowRangeConstIterator()
-        : data()
-        , row()
-        , position()
-        {}
+        CV_DbgAssert(position >= 0 && position <= data.rows);
+    }
 
-        RowRangeConstIterator(const cv::Mat_<T>& m, int index)
-        : data(m)
-        , row()
-        , position(index)
-        {
-            CV_DbgAssert(position >= 0 && position <= data.rows);
-        }
-        
-        // Dereference
-        const cv::Mat_<T>& operator*() const
-        {
-            setRow();
-            return row;
-        }
-        
-        const cv::Mat_<T>* operator->() const
-        {
-            setRow();
-            return &row;
-        }
-        
-        // Logical comparison
-        bool operator==(const RowRangeConstIterator& that) const
-        {
-            return this->position == that.position;
-        }
+    // Dereference
+    const cv::Mat_<T>& operator*() const
+    {
+        setRow();
+        return row;
+    }
 
-        bool operator!=(const RowRangeConstIterator& that) const
-        {
-            return !(*this == that);
-        }
-        
-        bool operator<(const RowRangeConstIterator& that) const
-        {
-            return this->position < that.position;
-        }
-        
-        bool operator>(const RowRangeConstIterator& that) const
-        {
-            return this->position > that.position;
-        }
-        
-        bool operator<=(const RowRangeConstIterator& that) const
-        {
-            return !(*this > that);
-        }
-        
-        bool operator>=(const RowRangeConstIterator& that) const
-        {
-            return !(*this < that);
-        }
-        
-        // Increment
-        RowRangeConstIterator& operator++()
-        {
-            ++position;            
-            return *this;
-        }
-        
-        RowRangeConstIterator operator++(int) const
-        {
-            RowRangeConstIterator tmp(*this);
-            ++(*this);
-            return tmp;
-        }
+    const cv::Mat_<T>* operator->() const
+    {
+        setRow();
+        return &row;
+    }
 
-    protected:
-        void setRow() const
-        {
-            row = data.row(position);
-        }
-        
-        cv::Mat_<T> data;
-        mutable cv::Mat_<T> row;
-        int position;
-    };
+    // Logical comparison
+    template <typename U>
+    friend bool operator==(const RowRangeConstIterator<U>&, const RowRangeConstIterator<U>&);
+    template <typename U>
+    friend bool operator<(const RowRangeConstIterator<U>&, const RowRangeConstIterator<U>&);
+
+    // Increment
+    RowRangeConstIterator& operator++()
+    {
+        ++position;            
+        return *this;
+    }
+
+    RowRangeConstIterator operator++(int)
+    {
+        RowRangeConstIterator tmp(*this);
+        ++(*this);
+        return tmp;
+    }
+
+protected:
+    void setRow() const
+    {
+        row = data.row(position);
+    }
+
+    cv::Mat_<T> data;
+    mutable cv::Mat_<T> row;
+    int position;
+};
     
+template <typename T>
+bool operator==(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return left.position == right.position;
+}
+
+template <typename T>
+bool operator!=(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return !(left == right);
+}
+
+template <typename T>
+bool operator<(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return left.position < right.position;
+}
+
+template <typename T>
+bool operator<=(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return (left < right) || (left == right);
+}
+
+template <typename T>
+bool operator>=(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return !(left < right);
+}
+
+template <typename T>
+bool operator>(const RowRangeConstIterator<T>& left, const RowRangeConstIterator<T>& right)
+{
+    return !(left <= right);
+}
+
 template <typename T>
 class RowRangeIterator : public RowRangeConstIterator<T>
 {
@@ -102,7 +113,7 @@ public:
     : RowRangeConstIterator<T>()
     {}
     
-    RowRangeIterator(const cv::Mat_<T>& m, int index)
+    RowRangeIterator(const cv::Mat_<T>& m, const int index)
     : RowRangeConstIterator<T>(m, index)
     {}
 
@@ -155,7 +166,7 @@ public:
     {
         return iterator(data, data.rows);
     }
-    
+        
     const_iterator cbegin() const
     {
         return begin();
